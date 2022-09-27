@@ -3,7 +3,8 @@ const router = express.Router();
 
 const productController = require('../controllers/Product.controller');
 
-router.get('/selling-watch', productController.getSellingWatchs);
+router.get('/selling/:type', productController.getSellingProducts);
+router.get(/(sex)+|(type)+|(limit)+/, productController.getProducts);
 router.get('/', productController.getAllProduct);
 
 router.post('/add', productController.addProduct);

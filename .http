@@ -1,0 +1,25 @@
+post http://localhost:3000/api/product/add
+Content-Type: application/json
+
+
+{
+"name": "Infinity Cuff - Rose Gold",
+"type" : "Bracelet",
+"collection" : 10,
+"sex" : "U",
+"price" : 499000,
+"stock" : 32,
+"sold" : 64,
+"view" : 564,
+"link" : "infinity-cuff-rose-gold",
+"description": "Được làm bằng chất liệu là 100% inox không gỉ, đảm bảo không bị dị ứng. Công nghệ tĩnh điện chân không giúp vòng giữ màu lâu (2-3 năm tuỳ người sử dụng). Với thiết kế tinh tế, sang trọng, nữ tính, vòng tay Infinity Cuff màu rose gold giúp các bạn nữ dễ dàng phối hợp với đồng hồ và trang phục trong tất cả các dịp từ đi làm đến đi chơi.",
+            "features": [
+                "Vòng tay nhập khẩu chất lượng cao.",
+                "Đường kính 5,6 cm, vừa với cỡ tay trung bình của người Việt Nam.",
+                "Chất liệu bằng inox không gỉ."
+            ],
+            "images": [
+                "https://www.dyoss.com/app/uploads/2018/10/ROSE-cuff-detail-01.jpg",
+                "https://www.dyoss.com/app/uploads/2018/10/IMG_0010-1024x1024.jpg"
+            ]
+}

@@ -11,9 +11,21 @@ class ProductController {
         });
     }
 
-    //[GET] /api/product/selling-watch
-    getSellingWatchs(req, res) {
-        res.send('get selling watchs');
+    //[GET] /api/product/selling/:type
+    getSellingProducts(req, res) {
+        const { type } = req.params;
+        const sql =
+            'SELECT * FROM tb_product WHERE type = ? ORDER BY sold DESC LIMIT 3';
+        const values = [[type]];
+
+        db.query(sql, [values], (err, result) => {
+            if (err) throw err;
+            res.json(result);
+        });
+    }
+
+    getProducts(req, res) {
+        res.send('get products');
     }
 
     //[POST] /api/product/add

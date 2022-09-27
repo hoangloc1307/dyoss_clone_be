@@ -13,10 +13,9 @@ class CollectionController {
 
     //[POST] /api/collection/add
     addCollection(req, res) {
-        const { collectionName, collectionDescription } = req.body;
-        const sql =
-            'INSERT INTO tb_collection (collection_name, collection_description) VALUES ?';
-        const values = [[collectionName, collectionDescription]];
+        const { name, description } = req.body;
+        const sql = 'INSERT INTO tb_collection (name, description) VALUES ?';
+        const values = [[name, description]];
 
         db.query(sql, [values], (err, result) => {
             if (err) throw err;
