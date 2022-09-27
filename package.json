@@ -1,0 +1,21 @@
+{
+    "name": "dyoss_clone_be",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/index.js",
+    "scripts": {
+        "start": "nodemon --inspect src/index.js",
+        "prettier": "prettier --single-quote --trailing-comma all --tab-width 4 --write src/**/*.{js,json}"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "express": "^4.17.1",
+        "mysql": "^2.18.1"
+    },
+    "devDependencies": {
+        "morgan": "^1.10.0",
+        "nodemon": "^2.0.15",
+        "prettier": "^2.5.1"
+    }
+}
