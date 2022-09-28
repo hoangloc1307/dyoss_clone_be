@@ -4,8 +4,11 @@ const router = express.Router();
 const productController = require('../controllers/Product.controller');
 
 router.get('/selling/:type', productController.getSellingProducts);
-router.get(/(sex)+|(type)+|(limit)+/, productController.getProducts);
-router.get('/', productController.getAllProduct);
+router.get('/related/:id', productController.getProductsRelated);
+router.get('/viewed', productController.getProductsViewed);
+router.get('/collections', productController.getProductsOfCollections);
+router.get('/:slug', productController.getProductBySlug);
+router.get('/', productController.getProducts);
 
 router.post('/add', productController.addProduct);
 

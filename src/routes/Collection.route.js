@@ -3,7 +3,7 @@ const router = express.Router();
 
 const collectionController = require('../controllers/Collection.controller');
 
-router.get('/', collectionController.getAllCollection);
+router.get('/', collectionController.getCollections);
 
 router.post('/add', collectionController.addCollection);
 

@@ -2,7 +2,7 @@ const db = require('../config/database');
 
 class CollectionController {
     //[GET] /api/collection
-    getAllCollection(req, res) {
+    getCollections(req, res) {
         const sql = 'SELECT * FROM tb_collection';
 
         db.query(sql, (err, result) => {
