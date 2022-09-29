@@ -158,6 +158,27 @@ class ProductController {
         });
     }
 
+    //[GET] /api/product/search
+    getProductsByName(req, res) {
+        const { name, limit, offset } = req.query;
+        let sql = 'SELECT id, name, price, link, stock, images FROM tb_product';
+        sql += ` WHERE name LIKE '%${Func.RemoveSpecialCharacters(name)}%' `;
+        sql += ` ORDER BY id DESC`;
+
+        if (parseInt(limit).toString() !== 'NaN') {
+            sql += ` LIMIT ${parseInt(limit)}`;
+        }
+        if (parseInt(offset).toString() !== 'NaN') {
+            sql += ` OFFSET ${parseInt(offset)}`;
+        }
+
+        db.query(sql, (err, result) => {
+            if (err) throw err;
+
+            res.json(result);
+        });
+    }
+
     //[POST] /api/product/add
     addProduct(req, res) {
         const {

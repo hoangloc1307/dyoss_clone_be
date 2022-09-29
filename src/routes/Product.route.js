@@ -7,6 +7,7 @@ router.get('/selling/:type', productController.getSellingProducts);
 router.get('/related/:id', productController.getProductsRelated);
 router.get('/viewed', productController.getProductsViewed);
 router.get('/collections', productController.getProductsOfCollections);
+router.get('/search', productController.getProductsByName);
 router.get('/:slug', productController.getProductBySlug);
 router.get('/', productController.getProducts);
 
