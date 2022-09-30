@@ -7,9 +7,6 @@ class ProductController {
         let sql = 'SELECT * FROM tb_product WHERE 1 = 1';
 
         if (req.query.hasOwnProperty('type')) {
-            console.log(
-                Func.RemoveSpecialCharacters(req.query.type.toLowerCase())
-            );
             sql += ` AND type = '${Func.RemoveSpecialCharacters(
                 req.query.type.toLowerCase()
             )}'`;
@@ -55,8 +52,13 @@ class ProductController {
     //[GET] /api/product/related/:id
     getProductsRelated(req, res) {
         const { id } = req.params;
-        const sql =
-            'SELECT tb.id, tb.name, tb.price, tb.images, tb.link, tb.stock FROM tb_product AS tb, (SELECT * FROM tb_product WHERE id = ?) AS curr WHERE tb.id <> curr.id AND tb.type = curr.type AND tb.sex = curr.sex AND tb.collection = curr.collection LIMIT 5;';
+        let sql =
+            'SELECT tb.id, tb.name, tb.price, tb.images, tb.link, tb.stock FROM tb_product AS tb, (SELECT * FROM tb_product WHERE id = ?) AS curr WHERE tb.id <> curr.id AND tb.type = curr.type AND tb.sex = curr.sex AND tb.collection = curr.collection';
+
+        if (parseInt(req.query.limit).toString() !== 'NaN') {
+            sql += ` LIMIT ${parseInt(req.query.limit)}`;
+        }
+
         const values = [[id]];
 
         db.query(sql, [values], (err, result) => {
@@ -176,6 +178,28 @@ class ProductController {
             if (err) throw err;
 
             res.json(result);
+        });
+    }
+
+    //[GET] /api/product/detail/:slug
+    getProductDetailAndRelated(req, res) {
+        const { slug, amount } = req.params;
+        let sql = 'SELECT * FROM tb_product WHERE link = ?;';
+        sql +=
+            'SELECT tb.id, tb.name, tb.price, tb.images, tb.link, tb.stock FROM tb_product AS tb, (SELECT id, type, sex, collection FROM tb_product WHERE link = ?) AS curr WHERE tb.id <> curr.id AND tb.type = curr.type AND tb.sex = curr.sex AND tb.collection = curr.collection';
+
+        sql += ` LIMIT ${parseInt(amount)}`;
+
+        const values = [[slug]];
+
+        db.query(sql, [values, values], (err, result) => {
+            if (err) throw err;
+
+            const response = {};
+            [response.detail] = [...result[0]];
+            response.relatedProducts = result[1];
+
+            res.json(response);
         });
     }
 

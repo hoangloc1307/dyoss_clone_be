@@ -1,0 +1,46 @@
+[GET] /api/product
+  Params: - type: Product type (watch, strap, ...)
+          - sex: (m: Man, w: Woman, u: Unisex)
+          - stock: Product available
+          - limit
+          - offset
+
+[GET] /api/product/selling/:type
+  Params: - :type: Product type (watch, strap, ...)
+          - limit
+
+[GET] /api/product/related/:id
+  Params: - :id: Product ID
+          - limit
+
+[GET] /api/product/viewed
+  Params: - id: Array ID as string (1,2,3,4)
+
+[GET] /api/product/:slug
+  Params: - :slug: Product link
+
+[GET] /api/product/collections
+  Params: - type: Product type (accessory, watch, strap, ...)
+          - sex: (m: Man, w: Woman, u: Unisex)
+
+[GET] /api/product/search
+  Params: - name: Product name
+          - limit
+          - offset
+
+[GET] /api/product/detail/:slug
+  Params: - :slug: Product link
+
+[POST] /api/product/add
+  Params: - name (string): Product name
+          - type (string): Product type (watch, strap, ...)
+          - collection (int): Collection ID
+          - sex (string): (M: Man, W: Woman, U: Unisex)
+          - price (int): Product price
+          - stock (int): Amount product in stock
+          - sold (int): Amount product sold
+          - view (int): Product view
+          - link (string): Product slug for SEO
+          - description (string): Product description
+          - features (string): Product features
+          - images (string): Product images
