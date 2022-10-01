@@ -161,10 +161,21 @@ class ProductController {
     }
 
     //[GET] /api/product/search
-    getProductsByName(req, res) {
-        const { name, limit, offset } = req.query;
-        let sql = 'SELECT id, name, price, link, stock, images FROM tb_product';
-        sql += ` WHERE name LIKE '%${Func.RemoveSpecialCharacters(name)}%' `;
+    getProductsSearch(req, res) {
+        const { name, slug, limit, offset } = req.query;
+        let slugs;
+        let sql =
+            'SELECT id, name, price, link, stock, images FROM tb_product WHERE 1 = 1';
+
+        if (name) {
+            sql += ` AND name LIKE '%${Func.RemoveSpecialCharacters(name)}%' `;
+        }
+
+        if (slug) {
+            slugs = slug.split(',');
+            sql += ` AND link IN ?`;
+        }
+
         sql += ` ORDER BY id DESC`;
 
         if (parseInt(limit).toString() !== 'NaN') {
@@ -174,7 +185,9 @@ class ProductController {
             sql += ` OFFSET ${parseInt(offset)}`;
         }
 
-        db.query(sql, (err, result) => {
+        const values = [slugs];
+
+        db.query(sql, [values], (err, result) => {
             if (err) throw err;
 
             res.json(result);
