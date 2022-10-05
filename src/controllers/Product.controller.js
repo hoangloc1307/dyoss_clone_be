@@ -4,117 +4,149 @@ const Func = require('../functions');
 class ProductController {
     //[GET] /api/product
     getProducts(req, res) {
-        let sql = 'SELECT * FROM tb_product WHERE 1 = 1';
+        const params = [];
+        let sql = 'SELECT ';
 
+        // COLUMN
+        if (req.query.hasOwnProperty('column')) {
+            const value = Func.RemoveSpecialCharacters(req.query.column.toLowerCase());
+            sql += value;
+        } else {
+            sql += '*';
+        }
+
+        //WHERE
+        sql += ' FROM tb_product WHERE 1 = 1';
+        if (req.query.hasOwnProperty('id')) {
+            const value = Func.RemoveSpecialCharacters(req.query.id.toLowerCase());
+            params.push([value.split(',')]);
+            sql += ' AND id IN ?';
+        }
+        if (req.query.hasOwnProperty('name')) {
+            const value = Func.RemoveSpecialCharacters(req.query.name.toLowerCase());
+            params.push(`%${value}%`);
+            sql += ' AND name LIKE ?';
+        }
         if (req.query.hasOwnProperty('type')) {
-            sql += ` AND type = '${Func.RemoveSpecialCharacters(
-                req.query.type.toLowerCase()
-            )}'`;
+            const value = Func.RemoveSpecialCharacters(req.query.type.toLowerCase());
+            params.push([value.split(',')]);
+            sql += ' AND type IN ?';
+        }
+        if (req.query.hasOwnProperty('collection')) {
+            const value = Func.RemoveSpecialCharacters(req.query.collection.toLowerCase());
+            params.push([value.split(',')]);
+            sql += ' AND collection IN ?';
         }
         if (req.query.hasOwnProperty('sex')) {
-            sql += ` AND sex = '${Func.RemoveSpecialCharacters(
-                req.query.sex.toLowerCase()
-            )}'`;
+            const value = Func.RemoveSpecialCharacters(req.query.sex.toLowerCase());
+            params.push(value);
+            sql += ' AND sex = ?';
         }
-        if (req.query.hasOwnProperty('stock')) {
-            sql += ` AND stock > 0`;
+        if (req.query.hasOwnProperty('priceMin')) {
+            const value = Func.RemoveSpecialCharacters(req.query.priceMin.toLowerCase());
+            const num = parseInt(value) || 0;
+            params.push(num);
+            sql += ' AND price > ?';
         }
-        if (parseInt(req.query.limit).toString() !== 'NaN') {
-            sql += ` LIMIT ${parseInt(req.query.limit)}`;
+        if (req.query.hasOwnProperty('priceMax')) {
+            const value = Func.RemoveSpecialCharacters(req.query.priceMax.toLowerCase());
+            const num = parseInt(value) || 0;
+            params.push(num);
+            sql += ' AND price < ?';
         }
-        if (parseInt(req.query.offset).toString() !== 'NaN') {
-            sql += ` OFFSET ${parseInt(req.query.offset)}`;
+        if (req.query.hasOwnProperty('inStock')) {
+            const value = Func.RemoveSpecialCharacters(req.query.inStock.toLowerCase());
+            switch (value) {
+                case 'true':
+                    sql += ' AND stock > 0';
+                    break;
+                case 'false':
+                    sql += ' AND stock = 0';
+                    break;
+                default:
+                    const num = parseInt(value) || 0;
+                    params.push(num);
+                    sql += ' AND stock >= ?';
+            }
+        }
+        if (req.query.hasOwnProperty('link')) {
+            const value = Func.RemoveSpecialCharacters(req.query.link.toLowerCase());
+            params.push([value.split(',')]);
+            sql += ' AND link IN ?';
         }
 
-        db.query(sql, (err, result) => {
+        //ORDER BY
+        if (req.query.hasOwnProperty('orderBy')) {
+            const value = Func.RemoveSpecialCharacters(req.query.orderBy.toLowerCase());
+            const orderString = value.replaceAll('.', ' ');
+            sql += ` ORDER BY ${orderString}`;
+        }
+
+        //LIMIT
+        if (req.query.hasOwnProperty('limit')) {
+            const value = Func.RemoveSpecialCharacters(req.query.limit.toLowerCase());
+            const [limitString, offsetString] = value.split(',');
+            const limit = parseInt(limitString) || 0;
+            const offset = parseInt(offsetString) || 0;
+            params.push(limit, offset);
+            sql += ' LIMIT ? OFFSET ?';
+        }
+
+        db.query(sql, params, (err, result) => {
             if (err) throw err;
             res.json(result);
         });
     }
 
-    //[GET] /api/product/selling/:type
-    getSellingProducts(req, res) {
-        const { type } = req.params;
-        let sql = 'SELECT * FROM tb_product WHERE type = ? ORDER BY sold DESC';
+    //[GET] /api/product/detail/:slug/:amount
+    getProductDetailAndRelated(req, res) {
+        const { slug, amount } = req.params;
+        let sql = 'SELECT * FROM tb_product WHERE link = ?;';
+        sql += 'SELECT tb.id, tb.name, tb.price, tb.images, tb.link, tb.stock FROM tb_product AS tb, ';
+        sql += '(SELECT id, type, sex, collection FROM tb_product WHERE link = ?) AS curr ';
+        sql += 'WHERE tb.id <> curr.id AND tb.type = curr.type AND tb.sex = curr.sex ';
+        sql += 'AND tb.collection = curr.collection ORDER BY RAND() ';
+        sql += `LIMIT ${parseInt(amount)}`;
 
-        if (parseInt(req.query.limit).toString() !== 'NaN') {
-            sql += ` LIMIT ${parseInt(req.query.limit)}`;
-        }
-
-        const values = [[type]];
-
-        db.query(sql, [values], (err, result) => {
-            if (err) throw err;
-            res.json(result);
-        });
-    }
-
-    //[GET] /api/product/related/:id
-    getProductsRelated(req, res) {
-        const { id } = req.params;
-        let sql =
-            'SELECT tb.id, tb.name, tb.price, tb.images, tb.link, tb.stock FROM tb_product AS tb, (SELECT * FROM tb_product WHERE id = ?) AS curr WHERE tb.id <> curr.id AND tb.type = curr.type AND tb.sex = curr.sex AND tb.collection = curr.collection';
-
-        if (parseInt(req.query.limit).toString() !== 'NaN') {
-            sql += ` LIMIT ${parseInt(req.query.limit)}`;
-        }
-
-        const values = [[id]];
-
-        db.query(sql, [values], (err, result) => {
-            if (err) throw err;
-            res.json(result);
-        });
-    }
-
-    //[GET] /api/product/viewed
-    getProductsViewed(req, res) {
-        const ids = req.query.id.split(',');
-        const sql =
-            'SELECT id, name, price, images, link, stock FROM tb_product WHERE id IN ?';
-        const values = [ids];
-
-        db.query(sql, [values], (err, result) => {
-            if (err) throw err;
-            res.json(result);
-        });
-    }
-
-    //[GET] /api/product/:slug
-    getProductBySlug(req, res) {
-        const { slug } = req.params;
-        const sql = 'SELECT * FROM tb_product WHERE link = ?;';
         const values = [[slug]];
-
-        db.query(sql, [values], (err, result) => {
+        db.query(sql, [values, values], (err, result) => {
             if (err) throw err;
-            res.json(result);
+
+            const response = {};
+            [response.detail] = [...result[0]];
+            response.relatedProducts = result[1];
+
+            res.json(response);
         });
     }
 
     //[GET] /api/product/collections
     getProductsOfCollections(req, res) {
-        let sql =
-            'SELECT c.id as collectionId, c.name as collectionName, c.description as collectionDescription, p.id, p.name, p.price, p.link, p.stock, p.images FROM tb_collection AS c, tb_product AS p WHERE c.id = p.collection';
+        const params = [];
+        let sql = 'SELECT c.id as collectionId, c.name as collectionName, c.description as collectionDescription, ';
+        sql += 'p.id, p.name, p.price, p.link, p.stock, p.images FROM tb_collection AS c, tb_product AS p ';
+        sql += 'WHERE c.id = p.collection';
 
         if (req.query.hasOwnProperty('type')) {
-            if (Func.RemoveSpecialCharacters(req.query.type) === 'accessory') {
-                sql += " AND type in ('strap', 'bracelet')";
+            const value = Func.RemoveSpecialCharacters(req.query.type);
+
+            if (value === 'accessory') {
+                params.push([['strap', 'bracelet']]);
+                sql += ' AND type IN ?';
             } else {
-                sql += ` AND type = '${Func.RemoveSpecialCharacters(
-                    req.query.type
-                )}'`;
+                params.push(value);
+                sql += ` AND type = ?`;
             }
         }
         if (req.query.hasOwnProperty('sex')) {
-            sql += ` AND sex = '${Func.RemoveSpecialCharacters(
-                req.query.sex
-            )}'`;
+            const value = Func.RemoveSpecialCharacters(req.query.sex);
+            params.push(value);
+            sql += ` AND sex = ?`;
         }
 
         sql += ' ORDER BY c.id DESC, p.id DESC';
 
-        db.query(sql, (err, result) => {
+        db.query(sql, params, (err, result) => {
             if (err) throw err;
 
             const response = [];
@@ -160,78 +192,9 @@ class ProductController {
         });
     }
 
-    //[GET] /api/product/search
-    getProductsSearch(req, res) {
-        const { name, slug, limit, offset } = req.query;
-        let slugs;
-        let sql =
-            'SELECT id, name, price, link, stock, images FROM tb_product WHERE 1 = 1';
-
-        if (name) {
-            sql += ` AND name LIKE '%${Func.RemoveSpecialCharacters(name)}%' `;
-        }
-
-        if (slug) {
-            slugs = slug.split(',');
-            sql += ` AND link IN ?`;
-        }
-
-        sql += ` ORDER BY id DESC`;
-
-        if (parseInt(limit).toString() !== 'NaN') {
-            sql += ` LIMIT ${parseInt(limit)}`;
-        }
-        if (parseInt(offset).toString() !== 'NaN') {
-            sql += ` OFFSET ${parseInt(offset)}`;
-        }
-
-        const values = [slugs];
-
-        db.query(sql, [values], (err, result) => {
-            if (err) throw err;
-
-            res.json(result);
-        });
-    }
-
-    //[GET] /api/product/detail/:slug
-    getProductDetailAndRelated(req, res) {
-        const { slug, amount } = req.params;
-        let sql = 'SELECT * FROM tb_product WHERE link = ?;';
-        sql +=
-            'SELECT tb.id, tb.name, tb.price, tb.images, tb.link, tb.stock FROM tb_product AS tb, (SELECT id, type, sex, collection FROM tb_product WHERE link = ?) AS curr WHERE tb.id <> curr.id AND tb.type = curr.type AND tb.sex = curr.sex AND tb.collection = curr.collection';
-
-        sql += ` LIMIT ${parseInt(amount)}`;
-
-        const values = [[slug]];
-
-        db.query(sql, [values, values], (err, result) => {
-            if (err) throw err;
-
-            const response = {};
-            [response.detail] = [...result[0]];
-            response.relatedProducts = result[1];
-
-            res.json(response);
-        });
-    }
-
     //[POST] /api/product/add
     addProduct(req, res) {
-        const {
-            name,
-            type,
-            collection,
-            sex,
-            price,
-            stock,
-            sold,
-            view,
-            link,
-            description,
-            features,
-            images,
-        } = req.body;
+        const { name, type, collection, sex, price, stock, sold, view, link, description, features, images } = req.body;
         const sql =
             'INSERT INTO tb_product (name, type, collection, sex, price, stock, sold, view, link, description, features, images) VALUES ?';
         const values = [
