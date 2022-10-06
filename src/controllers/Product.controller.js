@@ -132,18 +132,21 @@ class ProductController {
                 if (err) {
                     reject(err);
                 }
-                resolve(result[0].options);
+                resolve(result[0]?.options);
             });
         });
 
-        const listId = options.split(',');
+        if (options) {
+            const listId = options.split(',');
 
-        sql = 'SELECT id, name, images FROM tb_product WHERE id IN ?';
-        db.query(sql, [[listId]], (err, result) => {
-            if (err) throw err;
+            sql = 'SELECT id, name, images FROM tb_product WHERE id IN ?';
+            db.query(sql, [[listId]], (err, result) => {
+                if (err) throw err;
 
-            res.json(result);
-        });
+                res.json(result);
+            });
+        }
+        res.json([]);
     }
 
     //[GET] /api/product/collections
