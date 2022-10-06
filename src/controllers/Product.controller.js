@@ -1,4 +1,4 @@
-const db = require('../config/database');
+const db = require('../config/database').default;
 const Func = require('../functions');
 
 class ProductController {
@@ -128,15 +128,9 @@ class ProductController {
         sql += 'WHERE c.id = p.collection';
 
         if (req.query.hasOwnProperty('type')) {
-            const value = Func.RemoveSpecialCharacters(req.query.type);
-
-            if (value === 'accessory') {
-                params.push([['strap', 'bracelet']]);
-                sql += ' AND type IN ?';
-            } else {
-                params.push(value);
-                sql += ` AND type = ?`;
-            }
+            const value = Func.RemoveSpecialCharacters(req.query.type.toLowerCase());
+            params.push([value.split(',')]);
+            sql += ' AND type IN ?';
         }
         if (req.query.hasOwnProperty('sex')) {
             const value = Func.RemoveSpecialCharacters(req.query.sex);
