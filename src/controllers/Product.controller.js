@@ -146,7 +146,9 @@ class ProductController {
                 res.json(result);
             });
         }
-        res.json([]);
+        else {
+            res.json([]);
+        }
     }
 
     //[GET] /api/product/collections
