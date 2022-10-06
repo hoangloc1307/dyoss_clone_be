@@ -1,4 +1,4 @@
-const db = require('../config/database').default;
+const db = require('../config/database');
 const Func = require('../functions');
 
 class ProductController {
