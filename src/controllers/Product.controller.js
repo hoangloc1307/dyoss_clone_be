@@ -120,6 +120,32 @@ class ProductController {
         });
     }
 
+    //[GET] /api/product/options/:slug
+    async getProductOptions(req, res) {
+        const { slug } = req.params;
+        const params = [slug];
+        let sql = 'SELECT options FROM tb_product_box tpb INNER JOIN tb_product tp ';
+        sql += 'ON tpb.product_id = tp.id WHERE link = ?';
+
+        const options = await new Promise((resolve, reject) => {
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    reject(err);
+                }
+                resolve(result[0].options);
+            });
+        });
+
+        const listId = options.split(',');
+
+        sql = 'SELECT id, name, images FROM tb_product WHERE id IN ?';
+        db.query(sql, [[listId]], (err, result) => {
+            if (err) throw err;
+
+            res.json(result);
+        });
+    }
+
     //[GET] /api/product/collections
     getProductsOfCollections(req, res) {
         const params = [];
