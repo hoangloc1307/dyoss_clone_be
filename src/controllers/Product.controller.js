@@ -139,7 +139,7 @@ class ProductController {
         if (options) {
             const listId = options.split(',');
 
-            sql = 'SELECT id, name, images FROM tb_product WHERE id IN ?';
+            sql = 'SELECT id, name, images, type FROM tb_product WHERE id IN ?';
             db.query(sql, [[listId]], (err, result) => {
                 if (err) throw err;
                 const opt = { watch: [], strap: [] };
@@ -153,8 +153,7 @@ class ProductController {
                 });
                 res.json(opt);
             });
-        }
-        else {
+        } else {
             res.json([]);
         }
     }
