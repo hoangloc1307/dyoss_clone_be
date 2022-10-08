@@ -142,8 +142,16 @@ class ProductController {
             sql = 'SELECT id, name, images FROM tb_product WHERE id IN ?';
             db.query(sql, [[listId]], (err, result) => {
                 if (err) throw err;
-
-                res.json(result);
+                const opt = { watch: [], strap: [] };
+                result.map(item => {
+                    if (item.type === 'watch') {
+                        opt.watch.push(item);
+                    }
+                    if (item.type === 'strap') {
+                        opt.strap.push(item);
+                    }
+                });
+                res.json(opt);
             });
         }
         else {
