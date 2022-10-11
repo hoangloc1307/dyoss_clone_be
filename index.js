@@ -1,15 +1,18 @@
-const morgan = require('morgan');
-const express = require('express');
-const cors = require('cors');
+import dotenv from 'dotenv';
+import morgan from 'morgan';
+import express, { urlencoded, json } from 'express';
+import cors from 'cors';
 
-const route = require('./src/routes');
+import route from './src/routes/index.js';
 
 const app = express();
 const port = 3000;
 
+dotenv.config();
+
 app.use(morgan('combined'));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(urlencoded({ extended: true }));
+app.use(json());
 app.use(cors());
 
 route(app);

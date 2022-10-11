@@ -1,5 +1,5 @@
-const db = require('../config/database');
-const Func = require('../functions');
+import db from '../config/database.js';
+import * as Func from '../functions/index.js';
 
 class ProductController {
     //[GET] /api/product
@@ -139,14 +139,21 @@ class ProductController {
         if (options) {
             const listId = options.split(',');
 
-            sql = 'SELECT id, name, images FROM tb_product WHERE id IN ?';
+            sql = 'SELECT id, name, images, type FROM tb_product WHERE id IN ?';
             db.query(sql, [[listId]], (err, result) => {
                 if (err) throw err;
-
-                res.json(result);
+                const opt = { watch: [], strap: [] };
+                result.map(item => {
+                    if (item.type === 'watch') {
+                        opt.watch.push(item);
+                    }
+                    if (item.type === 'strap') {
+                        opt.strap.push(item);
+                    }
+                });
+                res.json(opt);
             });
-        }
-        else {
+        } else {
             res.json([]);
         }
     }
@@ -246,4 +253,4 @@ class ProductController {
     }
 }
 
-module.exports = new ProductController();
+export default new ProductController();

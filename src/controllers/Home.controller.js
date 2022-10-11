@@ -1,4 +1,4 @@
-const db = require('../config/database');
+import db from '../config/database.js';
 
 class HomeController {
     //[GET] /api/home
@@ -19,4 +19,4 @@ class HomeController {
     }
 }
 
-module.exports = new HomeController();
+export default new HomeController();

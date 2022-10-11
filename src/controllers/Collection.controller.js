@@ -1,4 +1,4 @@
-const db = require('../config/database');
+import db from '../config/database.js';
 
 class CollectionController {
     //[GET] /api/collection
@@ -24,4 +24,4 @@ class CollectionController {
     }
 }
 
-module.exports = new CollectionController();
+export default new CollectionController();

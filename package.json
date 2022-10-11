@@ -3,17 +3,20 @@
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
+    "type": "module",
     "scripts": {
-        "start": "node index.js",
+        "start": "nodemon index.js",
         "prettier": "prettier --single-quote --trailing-comma all --tab-width 4 --write src/**/*.{js,json}"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "bcrypt": "^5.1.0",
         "cors": "^2.8.5",
+        "dotenv": "^16.0.3",
         "express": "^4.17.1",
-        "mysql": "^2.18.1",
-        "dotenv": "^16.0.3"
+        "jsonwebtoken": "^8.5.1",
+        "mysql": "^2.18.1"
     },
     "devDependencies": {
         "morgan": "^1.10.0",
