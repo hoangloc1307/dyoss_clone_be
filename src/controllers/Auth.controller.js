@@ -90,9 +90,9 @@ class AuthController {
                     });
                 });
 
+                //Check password match
                 const isPasswordMatch = bcrypt.compareSync(password, account.password);
 
-                //Check password match
                 if (isPasswordMatch) {
                     const userToken = {
                         id: user.id,
@@ -104,7 +104,11 @@ class AuthController {
                     const token = jwt.sign(userToken, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
 
                     res.status(200);
-                    res.json({ status: 'loginSuccess', message: 'Login successfully.', accessToke: token });
+                    res.json({
+                        status: 'loginSuccess',
+                        message: 'Login successfully.',
+                        accessToken: token,
+                    });
                 } else {
                     res.status(401);
                     res.send({ status: 'wrongPassword', message: 'Wrong password.' });

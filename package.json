@@ -6,6 +6,7 @@
     "type": "module",
     "scripts": {
         "start": "node index.js",
+        "devStart": "nodemon index.js",
         "prettier": "prettier --single-quote --trailing-comma all --tab-width 4 --write src/**/*.{js,json}"
     },
     "author": "",
