@@ -17,6 +17,38 @@ class HomeController {
             res.json(result);
         });
     }
+
+    async newsletter(req, res) {
+        const { email } = req.body;
+
+        try {
+            const existsEmail = await new Promise((resolve, reject) => {
+                const sql = 'SELECT email FROM tb_newsletter WHERE email = ?';
+
+                db.query(sql, [email], (err, result) => {
+                    if (err) reject(err);
+
+                    resolve(...result);
+                });
+            });
+            if (existsEmail) {
+                res.status(400);
+                res.json({ status: 'existsEmail', message: 'Email exists.' });
+            } else {
+                const sql = 'INSERT INTO tb_newsletter (email) VALUES (?)';
+                db.query(sql, [email], (err, result) => {
+                    if (err) throw err;
+
+                    res.status(200);
+                    res.json({ status: 'success', message: 'Follow newsletter successfully.' });
+                });
+            }
+        } catch (err) {
+            console.log(err);
+            res.status(500);
+            res.json({});
+        }
+    }
 }
 
 export default new HomeController();
